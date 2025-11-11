@@ -71,7 +71,7 @@ pyproject.toml                 # Project configuration
 ```
 You should include additional files as needed in the submission/ directory, such as additional modules or scripts you use for hyperparameter selection, data preprocessing, etc.. Please avoid including jupyter notebooks or large data files in your submission.
 
-In addition to this .zip file, you must also submit a brief pdf report discussing your design choices and the performance of your model. This should be typeset in [LaTeX](https://www.latex-project.org/) or similar. 
+In addition to this .zip file, you must also submit a brief pdf report discussing your design choices and the performance of your model. This should be typeset in [LaTeX](https://www.latex-project.org/) or [Markdown](https://www.markdownguide.org/) (converted to PDF). See this [discussion thread](https://canvas.manchester.ac.uk/courses/45977/discussion_topics/738020?entry_id=40707) for more details. 
 
 ### Final checks
 Before submitting, it is strongly recommended to test your submission using Docker:
