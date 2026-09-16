@@ -1,6 +1,6 @@
 # COMP64501 - Topics in Machine Learning
-### Coursework 2025
-This coursework assignment requires you to implement, train, and evaluate a machine learning model for image classification on the Fashion-MNIST dataset. You will need to define your own model architecture and training procedure, then submit a Docker container with your code and trained model weights for evaluation. Along with your code, you will submit a brief pdf report discussing your design choices and the performance of your model.
+### Coursework 2026
+This coursework assignment requires you to implement, train, and evaluate a machine learning model for image classification on the Fashion-MNIST dataset. You will need to define your own model architecture and training procedure, then submit a Docker container with your code and trained model weights for evaluation. After submitting your code, you will be invited to a short interview with a GTA to discuss your design choices and the development of your model.
 
 ## Prerequisites
 - [Docker](https://docs.docker.com/engine/install/)
@@ -126,35 +126,26 @@ Submit the .zip file and your pdf report through the assignment portal on Canvas
 
 ## Marking criteria
 The assessed coursework is worth 20 marks and is 20% of the overall module mark. It will be assessed according to the following criteria:
-### Code and model performance (10 marks):
+### Code and model performance (11 marks):
 - **Code functionality (7 marks):**
     - Model architecture is valid and can be instantiated 
     - Training function works and returns valid weights 
     - Model achieves **at least 88% accuracy** on OUR test set (not the provided one, but in the same format) 
     - Model efficiency: <= 100,000 parameters 
-- **Code quality (1 mark):**
+- **Submission functionality (2 marks):**
     - Code is well-structured, readable, and appropriately commented.
+    - I do not have to put any extra effort into debugging your submission (renaming files, fixing file structure, etc.).
 - **Model performance bonus (2 marks):**
     - Additional marks for accuracy improvements: the top submissions by accuracy (e.g. top 50th percentile, top 20th percentile by test set performance [^*]) will receive up to two additional bonus marks.
     - Additional marks for parameter efficiency: the most efficient submissions that still meet the accuracy threshold will receive one bonus mark (e.g. bottom 30th percentile of parameters [^*]).
     - Note that these bonus marks are not cumulative; the maximum bonus you can receive is 2 marks.
-### Model design and report (10 marks):
-The report should describe your model development process, justify your design decisions, and present your results. It will be marked on three components:
-- **Model architecture design (3 marks):**
-    - Description of your model architecture and justification for your design choices (e.g. why did you choose convolutional layers vs fully connected, how did you determine the number of layers/units, etc.).
-    - Parameter efficiency considerations: How did you balance model capacity with the parameter constraint?
-- **Training and hyperparameter selection (4 marks):**
-    - Description of your training procedure, including data preprocessing and augmentation (if any).
-    - Clear implementation and explanation of your cross-validation strategy. How did you ensure your model generalises well to unseen data?
-    - What hyperparameters did you tune (e.g. learning rate, batch size, number of epochs, etc.) and how did you make your final selections?
-- **Reporting of results (3 marks):**
-    - Clear presentation of training and validation results, including relevant plots (e.g. training/validation accuracy and loss curves).
-    - Discussion of model performance, challenges faced, and potential improvements. 
-    - All plots and tables should be clearly labeled and referenced in the text. All plots should have appropriate axis labels, legends, and titles.
+### Interview (9 marks):
+During the interview, a GTA will ask about your model development process and provide you with the opportunity to justify your design decisions. They will ask three questions about your submitted code for a total of three marks each. **No laptops will be allowed during the interview.** We will not ask you to complete any derivations or write any pseudocode during this interview; it is designed to assess your understanding of the development process and the code you have submitted.
 
-Word count for report: max. 1000 words, excluding figures, tables, captions, and citations. **Please include a word count in your submission.** Figures and tables are strongly encouraged. Please cite all relevant sources and references. If you use any external code or libraries beyond those provided, please cite them appropriately.
+[^*]: I know I'll get a lot of questions about this. I reserve the right to ease these criteria as we receive more submissions. I will do my best to ensure that the bonus marks are allocated fairly and there's a justifiable cutoff point based on the distribution of submissions we receive, not an arbitrary threshold that can be attained or missed through e.g. stochasticity in the test set. 
 
-[^*]: I know I'll get a lot of questions about this. As this is the first year we're doing this particular assignment, I reserve the right to ease these criteria as we receive more submissions. I will do my best to ensure that the bonus marks are allocated fairly and there's a justifiable cutoff point based on the distribution of submissions we receive, not an arbitrary threshold that can be attained or missed through e.g. stochasticity in the test set. 
+### AI policy
+The AI policy for the code is **AI-permitted.** You are free to use AI coding assistants to help you develop this coursework. However, no laptops, notes, or tools are permitted during the interview (**AI-prohibited**). The interview is designed so that you may demonstrate an understanding of the code that you submit.
 
 ### Late submissions
 We follow Department's guidelines about late submissions, i.e., a deduction of 10% of the mark each 24 hours the work is late after the deadline. NO late submission will be marked one week after the deadline. Please read [this link](https://documents.manchester.ac.uk/DocuInfo.aspx?DocID=29825). 
