@@ -73,6 +73,8 @@ uv.lock                        # Dependency lock file
 ```
 You should include additional files as needed in the submission/ directory, such as additional modules or scripts you use for hyperparameter selection, data preprocessing, etc.. Please avoid including jupyter notebooks or large data files in your submission.
 
+**IMPORTANT:** If your .zip file is larger than 2MB, you will receive a warning. Please check that your submission only contains the files required for submission and does not include any unnecessary files (e.g., Jupyter notebooks, large datasets, etc.). Large submissions slow down the marking process, and you **will** be penalised if it is too large.
+
 ### Final checks
 Before submitting, it is strongly recommended to test your submission using Docker:
 1. Unzip the created submission file into a new directory:
@@ -132,6 +134,7 @@ The assessed coursework is worth 20 marks and is 20% of the overall module mark.
     - Training function works and returns valid weights 
     - Model achieves **at least 88% accuracy** on OUR test set (not the provided one, but in the same format) 
     - Model efficiency: <= 100,000 parameters 
+    - Submission size is <= 2MB (contact me if you think you have a good reason to exceed this limit)
     - I do not have to put any extra effort into debugging your submission (renaming files, fixing file structure, etc.).
 - **Model performance (2 marks):**
     - Marks for accuracy: the top submissions by test set accuracy (e.g. above the median, or in the top 20% [^*]) will receive up to two marks.
