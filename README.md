@@ -19,10 +19,11 @@ This coursework assignment requires you to implement, train, and evaluate a mach
     uv sync
     ```
 4. (Optional) Have a look at the data! We'll be using the [Fashion-MNIST](https://github.com/zalandoresearch/fashion-mnist) dataset for this assignment. If you would like to explore it yourself, visualise_dataset.ipynb is provided as a starting point.
-5. (Optional) Install any additional dependencies you may need for development by using `uv add <package-name>`. For example, to add Jupyter support, you can run:
+5. (Optional) Install any additional packages you need with uv. Use `uv add --dev <package-name>` for development tools that your submitted code does not import (these are not installed during marking), and `uv add <package-name>` only for packages that your submitted code needs. For example, to add Jupyter support, you can run:
     ```bash
-    uv add notebook ipykernel matplotlib
+    uv add --dev notebook
     ```
+    **IMPORTANT:** The `--dev` flag means that the package is for development tools only and is not installed during marking. **If your submitted code depends on a development package, it will fail during marking.** You have been warned!
 
 ### Defining and training your model
 You will have to define a model architecture and a training procedure for this assignment, then train and evaluate it on the Fashion-MNIST dataset.
@@ -46,7 +47,7 @@ This will test that your model can be loaded and makes predictions in the expect
 **This does not count as a cross-validation or validation script. You should implement your own validation procedure to evaluate your model's performance on a validation set during development.** 
 
 ### Preparing your code for submission
-1. Use the provided Dockerfile. **Do not modify it**: we will replace it with our own copy during marking. If you need additional Python packages, add them with `uv add <package-name>` so that they are listed in `pyproject.toml`.
+1. Use the provided Dockerfile. **Do not modify it**: we will replace it with our own copy during marking. 
 2. Ensure that your trained model weights are saved to `submission/model_weights.pth`. You can do this by running your training script/notebook.
 3. When you think you are ready to submit your code, run:
 ```bash
@@ -68,6 +69,7 @@ utils.py                       # (DO NOT MODIFY - will be replaced)
 Dockerfile                     # (DO NOT MODIFY - will be replaced)
 .dockerignore                  # (optional)
 pyproject.toml                 # Project configuration
+uv.lock                        # Dependency lock file
 ```
 You should include additional files as needed in the submission/ directory, such as additional modules or scripts you use for hyperparameter selection, data preprocessing, etc.. Please avoid including jupyter notebooks or large data files in your submission.
 
@@ -85,13 +87,13 @@ Before submitting, it is strongly recommended to test your submission using Dock
    ```bash
     docker build -t test .
     ```
-4. Run the Docker container with **no** network access (this is to check your training loop doesn't rely on internet access):
+4. Run the Docker container with **no** network access. This is how your submission is run during marking, so make sure this passes.
    ```bash
     docker run --rm --network=none test
    ```
-4. Run the Docker container **with** network access:
+4. Run the Docker container **with** network access, so that it can download the public test set and check that your model makes predictions:
    ```bash
-    docker run test
+    docker run --rm test
    ```
 If all tests pass, your submission is ready to be uploaded to the course portal on Canvas.
 
@@ -101,11 +103,11 @@ During marking, the following happens:
 
 1. **File replacement**: `model_calls.py` and `utils.py` are replaced with marking versions (**important:** any changes you make to these files will not be saved!)
 2. **Docker build**: Our copy of the provided Dockerfile is used to build a container
-3. **Container execution**: When build is finished, the container runs `model_calls.py`
+3. **Container execution**: When build is finished, the container runs `model_calls.py` without network access
 4. **Model loading**: Your architecture is instantiated and weights that you submitted are loaded
 5. **Integrity checks**:
    - Model architecture works (forward/backward pass)
-   - Preprocessing transforms are valid (no lambda functions, sorry) and deterministic in eval mode
+   - Preprocessing transforms are valid: training transforms can be any standard torchvision transform (no lambda functions, sorry), but evaluation transforms must be deterministic and come from the allowed list in utils.py (this helps ensure that we can reproduce your results)
    - Training function works and returns valid format
 6. **Evaluation**: Model is evaluated on the test set
 7. **Results**: Accuracy, parameter count, and results from checks are recorded
