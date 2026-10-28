@@ -127,13 +127,11 @@ Submit the .zip file through the assignment portal on Canvas by the deadline of 
 ## Marking criteria
 The assessed coursework is worth 20 marks and is 20% of the overall module mark. It will be assessed according to the following criteria:
 ### Code and model performance (11 marks):
-- **Code functionality (7 marks):**
+- **Code functionality (9 marks):**
     - Model architecture is valid and can be instantiated 
     - Training function works and returns valid weights 
     - Model achieves **at least 88% accuracy** on OUR test set (not the provided one, but in the same format) 
     - Model efficiency: <= 100,000 parameters 
-- **Submission functionality (2 marks):**
-    - Code is well-structured, readable, and appropriately commented.
     - I do not have to put any extra effort into debugging your submission (renaming files, fixing file structure, etc.).
 - **Model performance (2 marks):**
     - Marks for accuracy: the top submissions by test set accuracy (e.g. above the median, or in the top 20% [^*]) will receive up to two marks.
