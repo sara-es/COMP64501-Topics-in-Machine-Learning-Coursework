@@ -2,7 +2,6 @@
 Utility functions for the assignment. DO NOT MODIFY THIS FILE.
 This script will be replaced during marking, so any changes you make will not be saved! 
 """
-import numpy as np
 import torch, torchvision
 from torch import nn
 from PIL import Image

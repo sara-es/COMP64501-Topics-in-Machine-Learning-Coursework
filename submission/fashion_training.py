@@ -7,7 +7,6 @@ To run this training script with uv, ensure you're in the project root directory
 and execute: uv run -m submission.fashion_training
 """
 import os
-import numpy as np
 import torch, torchvision
 
 from submission import engine
@@ -87,7 +86,9 @@ def get_transforms(mode='train'):
     """
     Define any data augmentations or preprocessing here if needed.
     Only standard torchvision transforms are permitted (no lambda functions, sorry), please check that 
-    these pass by running model_calls.py before submission. 
+    these pass by running model_calls.py before submission. The 'eval' transforms must be
+    deterministic (no random augmentation), so only use transforms such as ToTensor, Normalize,
+    Pad, Resize or CenterCrop there.
     """
     if mode == 'train':
         tfs = torchvision.transforms.Compose([

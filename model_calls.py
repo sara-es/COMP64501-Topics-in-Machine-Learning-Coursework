@@ -184,7 +184,7 @@ def main():
     
     # Output in standardized format
     print(f"STUDENT_ID: {STUDENT_ID}")
-    print(f"ACCURACY_CHECK: {'PASSED' if accuracy >= 0.88 else 'FAILED'} (88% on the public test set)")
+    print(f"ACCURACY_CHECK: {'PASSED' if accuracy >= 0.88 else 'FAILED'}")
     print(f"PARAMETERS: {num_params}")
     print(f"TRAINING_CHECK: PASSED")
 
