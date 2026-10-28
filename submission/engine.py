@@ -15,6 +15,26 @@ def set_seed(seed):
     torch.manual_seed(seed)
 
 
+class SubsetWithTransform(torch.utils.data.Dataset):
+    """
+    Part of a dataset (given by indices) with its own transform, so that training and
+    validation data can use different transforms.
+    """
+    def __init__(self, dataset, indices, transform=None):
+        self.dataset = dataset
+        self.indices = list(indices)
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.indices)
+
+    def __getitem__(self, idx):
+        image, label = self.dataset[self.indices[idx]]
+        if self.transform:
+            image = self.transform(image)
+        return image, label
+
+
 def train(model, data_loader, criterion, optimizer, device):
     model.to(device)
     model.train()

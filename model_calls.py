@@ -95,7 +95,7 @@ def main():
     
     # Define training transforms and check validity
     transforms_train = get_transforms(mode='train')
-    passed, error = utils.check_valid_transforms(transforms_train)
+    passed, error = utils.check_valid_transforms(transforms_train, strict=False) # any torchvision transform is fine for training
     if not passed:
         print(f"STUDENT_ID: {STUDENT_ID}")
         print(f"ERROR: {error}")
@@ -124,9 +124,6 @@ def main():
 
     # Define evaluation transforms and check validity and determinism
     transform = get_transforms(mode='eval')
-    for tf in getattr(transform, 'transforms', [transform]): # also allow a single transform
-        if hasattr(tf, 'train'):
-            tf.eval()  # set to eval mode if applicable # type: ignore
     passed, error = utils.check_valid_transforms(transform)
     if not passed:
         print(f"STUDENT_ID: {STUDENT_ID}")

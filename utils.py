@@ -99,7 +99,7 @@ def training_check(model_class, device, transforms=None):
             def __init__(self, images, labels):
                 self.data = images
                 self.targets = labels
-                self.transform = transforms
+                self.transform = None # raw images: train_fashion_model adds its own transforms
             def __len__(self):
                 return len(self.data)
             
@@ -129,7 +129,7 @@ def training_check(model_class, device, transforms=None):
         test_model.to(device)
         
         # Verify the loaded model can do a forward pass
-        test_input = torch.stack([dummy_dataset[i][0] for i in range(2)]).to(device)
+        test_input = torch.stack([transforms(dummy_dataset[i][0]) for i in range(2)]).to(device)
         test_output = test_model(test_input)
         
         if test_output.shape != (2, 10):
@@ -150,14 +150,13 @@ def test_transform_determinism(transforms):
         str: Error message if check fails, None otherwise
     """
     try:     
-        # Create a dummy input image (PIL Image)
-        dummy_image = torch.rand(1, 28, 28)
-
-        output1 = transforms(torchvision.transforms.ToPILImage()(dummy_image.clone()))
-        output2 = transforms(torchvision.transforms.ToPILImage()(dummy_image.clone()))
-
-        if not torch.allclose(output1, output2):
-            return False, "Non-deterministic transforms in eval mode"
+        # Apply the transforms 20 times to each of 3 dummy images (PIL): all outputs must match
+        for _ in range(3):
+            dummy_image = torchvision.transforms.ToPILImage()(torch.rand(1, 28, 28))
+            output1 = transforms(dummy_image)
+            for _ in range(20):
+                if not torch.allclose(output1, transforms(dummy_image)):
+                    return False, "Non-deterministic transforms in eval mode"
         
         return True, None
     
@@ -165,9 +164,10 @@ def test_transform_determinism(transforms):
         return False, f"Transform determinism check failed: {str(e)}"
     
 
-def validate_transform_object(transform_obj, visited=None):
+def validate_transform_object(transform_obj, visited=None, strict=True):
     """
     Recursively validate a transform object to ensure it only uses allowed torchvision transforms.
+    With strict=False (training transforms), any torchvision transform not in BLACKLIST is allowed.
 
     Returns:
         bool: True if transforms are valid, False otherwise
@@ -179,7 +179,7 @@ def validate_transform_object(transform_obj, visited=None):
         'Grayscale', 'ToTensor', 'ToPILImage',
         'ToImage', 'ToDtype', 'ConvertImageDtype', # v2 replacements for ToTensor
         
-        # Augmentation (should use p=0 for eval mode)
+        # Augmentation (eval transforms must still be deterministic)
         'RandomHorizontalFlip', 'RandomVerticalFlip', 
         'RandomRotation', 'RandomCrop', 'ColorJitter',
         'RandomGrayscale', 'RandomPerspective', 'GaussianBlur',
@@ -217,7 +217,7 @@ def validate_transform_object(transform_obj, visited=None):
                          f"Please avoid using arbitrary functions or lambdas. "
                          f"Allowed: {sorted(ALLOWED_TRANSFORMS)}"
                          )
-    if class_name not in ALLOWED_TRANSFORMS:
+    if strict and class_name not in ALLOWED_TRANSFORMS:
         raise ValueError(
             f"Transform '{class_name}' is not on the allowed list. "
             f"Please contact a course leader if you have a legitimate use case. "
@@ -226,14 +226,14 @@ def validate_transform_object(transform_obj, visited=None):
     # Recursively check containers
     if isinstance(transform_obj, torchvision.transforms.Compose):
         for t in transform_obj.transforms:
-            validate_transform_object(t, visited)
+            validate_transform_object(t, visited, strict)
     
     if hasattr(transform_obj, 'transforms'):
         for t in transform_obj.transforms:
-            validate_transform_object(t, visited)
+            validate_transform_object(t, visited, strict)
 
 
-def check_valid_transforms(transforms):
+def check_valid_transforms(transforms, strict=True):
     """
     Verify that transforms are composed of valid torchvision transforms only.
     Arbitrary functions or lambdas are not allowed.
@@ -243,7 +243,7 @@ def check_valid_transforms(transforms):
         str: Error message if check fails, None otherwise
     """
     try:
-        validate_transform_object(transforms)
+        validate_transform_object(transforms, strict=strict)
     except ValueError as e:
         return False, f"Disallowed transform: {str(e)}"
     except Exception as e:

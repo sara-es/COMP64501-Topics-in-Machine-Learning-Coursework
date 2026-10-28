@@ -42,7 +42,11 @@ def train_fashion_model(fashion_mnist,
     # Create train-val split
     train_size = int(0.8 * len(fashion_mnist))
     val_size = len(fashion_mnist) - train_size
-    train_data, val_data = torch.utils.data.random_split(fashion_mnist, [train_size, val_size])
+    train_split, val_split = torch.utils.data.random_split(fashion_mnist, [train_size, val_size])
+
+    # Create datasets with transforms. You may wish to apply different transforms to the training and validation datasets
+    train_data = engine.SubsetWithTransform(fashion_mnist, train_split.indices, get_transforms('train'))
+    val_data = engine.SubsetWithTransform(fashion_mnist, val_split.indices, get_transforms('eval'))
 
     # dataloaders
     train_loader = torch.utils.data.DataLoader(train_data,
@@ -82,22 +86,17 @@ def train_fashion_model(fashion_mnist,
 def get_transforms(mode='train'):
     """
     Define any data augmentations or preprocessing here if needed.
-    Only standard torchvision transforms are permitted (no lambda functions), please check that 
-    these pass by running model_calls.py before submission. Transforms will be set to .eval()
-    (deterministic) mode during evaluation, so avoid using stochastic transforms like RandomCrop
-    or RandomHorizontalFlip unless they can be set to p=0 during eval.
+    Only standard torchvision transforms are permitted (no lambda functions, sorry), please check that 
+    these pass by running model_calls.py before submission. 
     """
     if mode == 'train':
         tfs = torchvision.transforms.Compose([
             torchvision.transforms.ToTensor(), # convert images to tensors
         ])
-    elif mode == 'eval': # no stochastic transforms, or use p=0
+    elif mode == 'eval': # deterministic transforms only
         tfs = torchvision.transforms.Compose([
             torchvision.transforms.ToTensor(), # convert images to tensors
         ])
-        for tf in tfs.transforms:
-            if hasattr(tf, 'train'):
-                tf.eval()  # set to eval mode if applicable # type: ignore
     else:
         raise ValueError(f"Unknown mode {mode} for transforms, must be 'train' or 'eval'.")
     return tfs
@@ -113,10 +112,6 @@ def load_training_data():
         download=True,
     )
     # We load in data as the raw PIL images - recommended to have a look in visualise_dataset.ipynb! 
-    # To use them for training or inference, we need to transform them to tensors. 
-    # We set this transform here, as well as any other data preprocessing or augmentation you 
-    # wish to apply.
-    fashion_mnist.transform = get_transforms(mode='train')
     return fashion_mnist
 
 
