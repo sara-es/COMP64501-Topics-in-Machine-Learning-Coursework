@@ -131,6 +131,8 @@ def create_submission():
     print("Submission package created successfully.")
     print(f"File: {output_file}")
     print(f"Size: {zip_size_mb:.2f} MB")
+    if zip_size_mb > 2: # most submissions should be under 1MB
+        print("WARNING: this zip is larger than expected. Check that it only contains the files required for submission (no Jupyter notebooks or other unnecessary files).")
     print(f"Files included: {len(copied_files)}")
     print()
     print("Next steps:")
