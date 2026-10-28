@@ -5,9 +5,9 @@ import torch.nn.functional as F  # useful stateless functions
 
 class Net(nn.Module):
     """
-    Define your model here. Feel free to modify all code below, but do not change the class name. 
+    Define your model here. Feel free to modify all code below, but do not change the class name, and make sure Net() works with no arguments.
     This simple example is a feedforward neural network with one hidden layer.
-    Please note that this example model does not achieve the required parameter count (101700).
+    Please note that this example model has 101,770 parameters, which is over the 100,000 limit.
     """
     def __init__(self, input_size=28*28, hidden_size=128, num_classes=10):
         super(Net, self).__init__()

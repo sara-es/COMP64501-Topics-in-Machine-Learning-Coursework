@@ -4,7 +4,7 @@ This coursework assignment requires you to implement, train, and evaluate a mach
 
 ## Prerequisites
 - [Docker](https://docs.docker.com/engine/install/)
-- [Python 3.11+](https://www.python.org/downloads/)
+- [Python 3.12, 3.13 or 3.14](https://www.python.org/downloads/)
 - [uv](https://docs.astral.sh/uv/)
 
 ## Overview
@@ -13,7 +13,7 @@ This coursework assignment requires you to implement, train, and evaluate a mach
     ```bash
     cd /path/to/assignment
     ```
-2. Set your student ID in `STUDENT_ID.py`.
+2. Set your 8-digit student ID number in `submission/STUDENT_ID.py`.
 3. Install the required dependencies:
     ```bash
     uv sync
@@ -26,9 +26,9 @@ This coursework assignment requires you to implement, train, and evaluate a mach
 
 ### Defining and training your model
 You will have to define a model architecture and a training procedure for this assignment, then train and evaluate it on the Fashion-MNIST dataset.
-1. Implement your model in `submission/fashion_model.py`. 
-2. Edit the training and evaluation functions in `submission/fashion_training.py`, as needed.
-3. Perform cross-evaluation for hyperparameter selection and final model evaluation.
+1. Implement your model in `submission/fashion_model.py`.
+2. Edit the training and evaluation functions in `submission/fashion_training.py`, as needed. 
+3. Perform cross-validation for hyperparameter selection and final model evaluation.
 
 You can train your model by running the following command from the project root directory:
 ```bash
@@ -43,10 +43,10 @@ uv run model_calls.py
 ```
 This will test that your model can be loaded and makes predictions in the expected format. It requires that you have already trained and saved your model weights to `submission/model_weights.pth`. We will use a script similar to this to evaluate your model during marking.
 
-**This does not count as a cross-evaluation or validation script. You should implement your own validation procedure to evaluate your model's performance on a validation set during development.** 
+**This does not count as a cross-validation or validation script. You should implement your own validation procedure to evaluate your model's performance on a validation set during development.** 
 
 ### Preparing your code for submission
-1. Create a Dockerfile, or modify the provided one, to set up the environment needed to run your code. 
+1. Use the provided Dockerfile. **Do not modify it**: we will replace it with our own copy during marking. If you need additional Python packages, add them with `uv add <package-name>` so that they are listed in `pyproject.toml`.
 2. Ensure that your trained model weights are saved to `submission/model_weights.pth`. You can do this by running your training script/notebook.
 3. When you think you are ready to submit your code, run:
 ```bash
@@ -61,17 +61,15 @@ submission/
 ├── fashion_training.py        # Your training code
 ├── model_weights.pth          # Pre-trained weights
 ├── STUDENT_ID.py              # Your student ID
-├── engine.py                  # (optional) Training helpers
+├── engine.py                  # Training helpers - imported by fashion_training.py
 └── __init__.py                # (required) Empty file
 model_calls.py                 # (DO NOT MODIFY - will be replaced)
 utils.py                       # (DO NOT MODIFY - will be replaced)
-Dockerfile                     # Your Docker configuration
-README.md                      # This file
+Dockerfile                     # (DO NOT MODIFY - will be replaced)
+.dockerignore                  # (optional)
 pyproject.toml                 # Project configuration
 ```
 You should include additional files as needed in the submission/ directory, such as additional modules or scripts you use for hyperparameter selection, data preprocessing, etc.. Please avoid including jupyter notebooks or large data files in your submission.
-
-In addition to this .zip file, you must also submit a brief pdf report discussing your design choices and the performance of your model. This should be typeset in [LaTeX](https://www.latex-project.org/) or [Markdown](https://www.markdownguide.org/) (converted to PDF). See this [discussion thread](https://canvas.manchester.ac.uk/courses/45977/discussion_topics/738020?entry_id=40707) for more details. 
 
 ### Final checks
 Before submitting, it is strongly recommended to test your submission using Docker:
@@ -102,27 +100,27 @@ If all tests pass, your submission is ready to be uploaded to the course portal 
 During marking, the following happens:
 
 1. **File replacement**: `model_calls.py` and `utils.py` are replaced with marking versions (**important:** any changes you make to these files will not be saved!)
-2. **Docker build**: Your Dockerfile is used to build a container
+2. **Docker build**: Our copy of the provided Dockerfile is used to build a container
 3. **Container execution**: When build is finished, the container runs `model_calls.py`
 4. **Model loading**: Your architecture is instantiated and weights that you submitted are loaded
 5. **Integrity checks**:
    - Model architecture works (forward/backward pass)
-   - Prepocessing transforms are valid (no lambda functions, sorry) and deterministic in eval mode
+   - Preprocessing transforms are valid (no lambda functions, sorry) and deterministic in eval mode
    - Training function works and returns valid format
 6. **Evaluation**: Model is evaluated on the test set
 7. **Results**: Accuracy, parameter count, and results from checks are recorded
 
-**Output format** (parsed automatically) looks like this:
+**Output format** during marking (parsed automatically) looks like this:
 ```
 STUDENT_ID: 10045678
-ACCURACY: 0.872300
+ACCURACY_CHECK: PASSED
 PARAMETERS: 45820
 TRAINING_CHECK: PASSED
 ```
 
 ## Submission
 
-Submit the .zip file and your pdf report through the assignment portal on Canvas by the deadline of **14:00 November 27, 2025, Thursday**.
+Submit the .zip file through the assignment portal on Canvas by the deadline of **14:00 November 17, 2026, Tuesday**.
 
 ## Marking criteria
 The assessed coursework is worth 20 marks and is 20% of the overall module mark. It will be assessed according to the following criteria:
@@ -135,10 +133,10 @@ The assessed coursework is worth 20 marks and is 20% of the overall module mark.
 - **Submission functionality (2 marks):**
     - Code is well-structured, readable, and appropriately commented.
     - I do not have to put any extra effort into debugging your submission (renaming files, fixing file structure, etc.).
-- **Model performance bonus (2 marks):**
-    - Additional marks for accuracy improvements: the top submissions by accuracy (e.g. top 50th percentile, top 20th percentile by test set performance [^*]) will receive up to two additional bonus marks.
-    - Additional marks for parameter efficiency: the most efficient submissions that still meet the accuracy threshold will receive one bonus mark (e.g. bottom 30th percentile of parameters [^*]).
-    - Note that these bonus marks are not cumulative; the maximum bonus you can receive is 2 marks.
+- **Model performance (2 marks):**
+    - Marks for accuracy: the top submissions by test set accuracy (e.g. above the median, or in the top 20% [^*]) will receive up to two marks.
+    - Marks for parameter efficiency: the most efficient submissions that still meet the accuracy threshold will receive one mark (e.g. the 30% of submissions with the fewest parameters [^*]).
+    - Note that these marks are not cumulative; the maximum you can receive for model performance is 2 marks.
 ### Interview (9 marks):
 During the interview, a GTA will ask about your model development process and provide you with the opportunity to justify your design decisions. They will ask three questions about your submitted code for a total of three marks each. **No laptops will be allowed during the interview.** We will not ask you to complete any derivations or write any pseudocode during this interview; it is designed to assess your understanding of the development process and the code you have submitted.
 

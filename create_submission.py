@@ -10,6 +10,7 @@ Usage:
 
 import os
 import shutil
+import sys
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -18,13 +19,15 @@ try:
 except ImportError:
     print("ERROR: Could not import STUDENT_ID from submission/STUDENT_ID.py")
     print("Please make sure this file exists and you have set STUDENT_ID.")
-    exit(1)
+    sys.exit(1)
+
+STUDENT_ID = str(STUDENT_ID).strip() # in case it was entered as a number
 
 # Verify student ID is set
-if STUDENT_ID == "your_student_id_here":
-    print("ERROR: STUDENT_ID not set!")
+if not (STUDENT_ID.isdigit() and len(STUDENT_ID) == 8):
+    print("ERROR: STUDENT_ID not set, or not an 8-digit number!")
     print("Please edit submission/STUDENT_ID.py to set your student ID.")
-    exit(1)
+    sys.exit(1)
 
 # Files to include in submission
 REQUIRED_FILES = [
@@ -37,6 +40,7 @@ REQUIRED_FILES = [
     "utils.py", # not required in final submission, but necessary if you wish to test locally
     "Dockerfile",
     "pyproject.toml",
+    "uv.lock",
 ]
 
 OPTIONAL_FILES = [
@@ -83,7 +87,7 @@ def create_submission():
         print()
         print("Please ensure all required files exist before creating submission.")
         shutil.rmtree(temp_path)
-        exit(1)
+        sys.exit(1)
     
     # Copy optional files
     for file_path in OPTIONAL_FILES:
@@ -97,10 +101,9 @@ def create_submission():
 
     # Copy any other python files in submission/ directory
     # If you wish to include additional files that do not end in .py, add them to OPTIONAL_FILES above
-    # Note: I'm aware this will duplicate already copied files on Windows
     submission_dir = Path("submission")
     for item in submission_dir.rglob('*'):
-        if item.is_file() and str(item) not in REQUIRED_FILES and item.suffix == '.py':
+        if item.is_file() and item.as_posix() not in REQUIRED_FILES + OPTIONAL_FILES and item.suffix == '.py':
             relative_path = item.relative_to('.')
             dst = temp_path / relative_path
             dst.parent.mkdir(parents=True, exist_ok=True)
@@ -136,7 +139,7 @@ def create_submission():
     print(f"   cd {STUDENT_ID}")
     print("   docker build -t test .")
     print("   docker run test")
-    print("2. If tests pass, submit the .zip file to the course portal on Canvas along with your report.")
+    print("2. If tests pass, submit the .zip file to the course portal on Canvas.")
     print()
 
 if __name__ == "__main__":

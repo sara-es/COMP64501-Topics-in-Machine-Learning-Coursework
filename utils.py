@@ -5,6 +5,7 @@ This script will be replaced during marking, so any changes you make will not be
 import numpy as np
 import torch, torchvision
 from torch import nn
+from PIL import Image
 
 from submission.fashion_training import train_fashion_model, get_transforms
 
@@ -27,7 +28,7 @@ def model_check(model, device, transforms=None):
         model.train()
         
         # Create dummy dataset (3 samples)
-        dummy_data = torch.randn(3, 1, 28, 28)
+        dummy_data = torch.rand(3, 1, 28, 28).to(device)
         dummy_labels = torch.tensor([0, 1, 2]).to(device)
 
         if transforms is not None:
@@ -90,8 +91,8 @@ def training_check(model_class, device, transforms=None):
     """
     try:
         # Create small dummy data (30 samples, 28x28 grayscale, 10 classes)
-        dummy_images = np.random.randint(0, 256, size=(30, 28, 28), dtype=np.uint8)
-        dummy_labels = [i % 10 for i in range(30)]
+        dummy_images = torch.randint(0, 256, (30, 28, 28), dtype=torch.uint8)
+        dummy_labels = torch.arange(30) % 10
         
         # Create a mock dataset that behaves like FashionMNIST
         class DummyDataset:
@@ -103,7 +104,7 @@ def training_check(model_class, device, transforms=None):
                 return len(self.data)
             
             def __getitem__(self, idx):
-                image = self.data[idx]
+                image = Image.fromarray(self.data[idx].numpy())  # PIL image, as in FashionMNIST
                 label = self.targets[idx]
                 if self.transform:
                     image = self.transform(image)
@@ -112,7 +113,7 @@ def training_check(model_class, device, transforms=None):
         dummy_dataset = DummyDataset(dummy_images, dummy_labels)
         
         # USE_GPU=False to ensure consistent behavior
-        result = train_fashion_model(dummy_dataset, n_epochs=1, USE_GPU=False)
+        result = train_fashion_model(dummy_dataset, n_epochs=1, USE_GPU=False, return_state_dict_only=True)
         
         # Verify return type is dict (state_dict)
         if not isinstance(result, dict):
@@ -128,7 +129,7 @@ def training_check(model_class, device, transforms=None):
         test_model.to(device)
         
         # Verify the loaded model can do a forward pass
-        test_input = torch.randn(2, 1, 28, 28).to(device)
+        test_input = torch.stack([dummy_dataset[i][0] for i in range(2)]).to(device)
         test_output = test_model(test_input)
         
         if test_output.shape != (2, 10):
@@ -150,7 +151,7 @@ def test_transform_determinism(transforms):
     """
     try:     
         # Create a dummy input image (PIL Image)
-        dummy_image = torch.randn(1, 28, 28)
+        dummy_image = torch.rand(1, 28, 28)
 
         output1 = transforms(torchvision.transforms.ToPILImage()(dummy_image.clone()))
         output2 = transforms(torchvision.transforms.ToPILImage()(dummy_image.clone()))
@@ -176,6 +177,7 @@ def validate_transform_object(transform_obj, visited=None):
         # Basic preprocessing 
         'Normalize', 'Resize', 'CenterCrop', 'Pad', 
         'Grayscale', 'ToTensor', 'ToPILImage',
+        'ToImage', 'ToDtype', 'ConvertImageDtype', # v2 replacements for ToTensor
         
         # Augmentation (should use p=0 for eval mode)
         'RandomHorizontalFlip', 'RandomVerticalFlip', 
@@ -242,8 +244,6 @@ def check_valid_transforms(transforms):
     """
     try:
         validate_transform_object(transforms)
-    except ImportError:
-        transforms = None
     except ValueError as e:
         return False, f"Disallowed transform: {str(e)}"
     except Exception as e:

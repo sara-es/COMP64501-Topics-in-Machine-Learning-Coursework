@@ -42,6 +42,13 @@ def evaluate_model(model, test_loader, device):
     return accuracy
 
 
+def count_parameters(model):
+    """Count all parameters (trainable or not) and buffers, except BatchNorm running statistics."""
+    bn_stats = ('running_mean', 'running_var', 'num_batches_tracked')
+    n = sum(p.numel() for p in model.parameters())
+    return n + sum(b.numel() for name, b in model.named_buffers() if not name.endswith(bn_stats))
+
+
 def main():
     # Check STUDENT_ID is set
     if STUDENT_ID == "your_student_id_here":
@@ -64,12 +71,12 @@ def main():
     model = Net()
     
     # Count parameters BEFORE loading weights
-    num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    num_params = count_parameters(model)
     
-    # Load trained weights
+    # Load trained weights once and keep them in memory, in case the checks below overwrite the file
     try:
-        model.load_state_dict(torch.load('submission/model_weights.pth', 
-                                         weights_only=True, map_location=device))
+        weights = torch.load('submission/model_weights.pth', weights_only=True, map_location=device)
+        model.load_state_dict(weights)
     except Exception as e:
         print(f"STUDENT_ID: {STUDENT_ID}")
         print(f"ERROR: Failed to load model weights: {e}")
@@ -79,7 +86,7 @@ def main():
     model.to(device)
     
     # Verify parameter count after loading (should be same)
-    num_params_after = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    num_params_after = count_parameters(model)
     if num_params != num_params_after:
         print(f"STUDENT_ID: {STUDENT_ID}")
         print(f"ERROR: Parameter count changed after loading weights ({num_params} -> {num_params_after})")
@@ -112,12 +119,12 @@ def main():
         return
     
     # Reload weights after sanity check (in case model state changed)
-    model.load_state_dict(torch.load('submission/model_weights.pth', map_location=device))
+    model.load_state_dict(weights)
     model.to(device)
 
     # Define evaluation transforms and check validity and determinism
     transform = get_transforms(mode='eval')
-    for tf in transform.transforms:
+    for tf in getattr(transform, 'transforms', [transform]): # also allow a single transform
         if hasattr(tf, 'train'):
             tf.eval()  # set to eval mode if applicable # type: ignore
     passed, error = utils.check_valid_transforms(transform)
@@ -180,10 +187,14 @@ def main():
     
     # Output in standardized format
     print(f"STUDENT_ID: {STUDENT_ID}")
-    print(f"ACCURACY: {accuracy:.6f}")
+    print(f"ACCURACY_CHECK: {'PASSED' if accuracy >= 0.88 else 'FAILED'} (88% on the public test set)")
     print(f"PARAMETERS: {num_params}")
     print(f"TRAINING_CHECK: PASSED")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e: # make sure the parser always gets a result
+        print(f"STUDENT_ID: {STUDENT_ID}")
+        print(f"ERROR: {type(e).__name__}: {e}")
